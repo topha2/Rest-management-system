@@ -1,6 +1,8 @@
-# Al-Baraka Restaurant & Cafeteria Management System (Demo Version)
+# Restaurant Management System
 
-A modern, high-performance web-based management system designed for restaurants and cafeterias. This version is a **standalone demo** that uses browser `localStorage` for data persistence, making it perfect for client demonstrations without needing a backend server.
+A modern, high-performance web-based management system designed for restaurants and cafeterias. This **Enterprise POS solution** is engineered for modern hospitality businesses, solving the critical challenge of manual order tracking by providing a seamless digital menu, automated table assignments, and instant cloud-synced receipts.
+
+This version is a **standalone demo** that uses browser `localStorage` for data persistence, making it perfect for client demonstrations without needing a backend server.
 
 ## 🌟 Key Features
 
