@@ -1,0 +1,17 @@
+{
+  "name": "al-baraka-restaurant-system",
+  "version": "1.0.0",
+  "description": "Premium Restaurant & Cafeteria Management System",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx -y serve .",
+    "dev": "npx -y serve ."
+  },
+  "keywords": [
+    "pos",
+    "restaurant",
+    "management-system"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

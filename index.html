@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Al-Baraka Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 selection:bg-amber-100">
+    <!-- Animated Background Blob -->
+    <div
+        class="fixed top-0 -left-4 w-72 h-72 bg-amber-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob">
+    </div>
+    <div
+        class="fixed top-0 -right-4 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000">
+    </div>
+    <div
+        class="fixed -bottom-8 left-20 w-72 h-72 bg-rose-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000">
+    </div>
+
+    <div class="max-w-md w-full relative">
+        <div class="text-center mb-10">
+            <div
+                class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-amber-400 to-amber-600 rounded-3xl shadow-2xl shadow-amber-200 mb-6 transform hover:rotate-6 transition-transform duration-500">
+                <i class="fas fa-utensils text-white text-4xl"></i>
+            </div>
+            <h1 class="text-4xl font-black text-slate-800 tracking-tight">Al-Baraka</h1>
+            <p class="text-slate-500 font-medium">Smart Restaurant Demo System</p>
+        </div>
+
+        <div id="loginView" class="glass-card p-10 rounded-[2.5rem] animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">Welcome Back</h2>
+                <p class="text-slate-400 text-sm">Please sign in to continue</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Username</label>
+                    <div class="relative group">
+                        <span
+                            class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                            <i class="fas fa-user-circle"></i>
+                        </span>
+                        <input type="text" name="username" required
+                            class="w-full pl-11 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700"
+                            placeholder="Try 'admin'">
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Password</label>
+                    <div class="relative group">
+                        <span
+                            class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" required
+                            class="w-full pl-11 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700"
+                            placeholder="Try 'admin'">
+                    </div>
+                </div>
+
+                <div id="loginErrorMessage"
+                    class="hidden text-red-500 text-sm bg-red-50 p-4 rounded-2xl border border-red-100 animate-shake">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Invalid credentials.</span>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-amber-200 transition-all transform active:scale-95 flex items-center justify-center gap-2 group">
+                    <span>Sign In</span>
+                    <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+
+            <div class="mt-10 pt-8 border-t border-slate-100 text-center">
+                <p class="text-sm text-slate-500">Don't have an account?
+                    <button id="showRegister" class="text-amber-600 font-bold hover:underline ml-1">Create
+                        Account</button>
+                </p>
+            </div>
+        </div>
+
+        <div id="registerView" class="hidden glass-card p-10 rounded-[2.5rem] animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">New Account</h2>
+                <p class="text-slate-400 text-sm">Join our restaurant network</p>
+            </div>
+
+            <form id="registerForm" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Full
+                        Name</label>
+                    <div class="relative group">
+                        <span
+                            class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                            <i class="fas fa-id-card"></i>
+                        </span>
+                        <input type="text" name="fullName" required
+                            class="w-full pl-11 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700"
+                            placeholder="Your Name">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Username</label>
+                        <input type="text" name="username" required
+                            class="w-full px-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700"
+                            placeholder="user123">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Role</label>
+                        <select name="role" required
+                            class="w-full px-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700 appearance-none">
+                            <option value="admin">Admin</option>
+                            <option value="reception">Staff</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Password</label>
+                    <div class="relative group">
+                        <span
+                            class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" required
+                            class="w-full pl-11 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none font-medium text-slate-700"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div id="registerErrorMessage"
+                    class="hidden text-red-500 text-sm bg-red-50 p-4 rounded-2xl border border-red-100">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Registration failed.</span>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-amber-200 transition-all transform active:scale-95">
+                    Register Now
+                </button>
+            </form>
+
+            <div class="mt-10 pt-8 border-t border-slate-100 text-center">
+                <p class="text-sm text-slate-500">Already have an account?
+                    <button id="showLogin" class="text-amber-600 font-bold hover:underline ml-1">Sign In</button>
+                </p>
+            </div>
+        </div>
+
+        <p class="text-center text-slate-400 text-xs mt-12 font-medium tracking-wide">
+            &copy; 2026 AL-BARAKA Demo &bull; Made with High Performance
+        </p>
+    </div>
+
+    <script type="module">
+        import { auth } from './js/auth.js';
+        import './js/init.js';
+
+        // Check if already logged in - Removed auto-redirect to follow user request "start login page"
+        /*
+        if (auth.isAuthenticated()) {
+            const user = auth.getCurrentUser();
+            if (user.role === 'admin') {
+                window.location.href = 'pages/admin/dashboard.html';
+            } else {
+                window.location.href = 'pages/pos/pos.html';
+            }
+        }
+        */
+
+        const loginView = document.getElementById('loginView');
+        const registerView = document.getElementById('registerView');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        const loginErrorMessage = document.getElementById('loginErrorMessage');
+        const registerErrorMessage = document.getElementById('registerErrorMessage');
+
+        showRegister.addEventListener('click', () => {
+            loginView.classList.add('hidden');
+            registerView.classList.remove('hidden');
+        });
+
+        showLogin.addEventListener('click', () => {
+            registerView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+
+            const result = await auth.login(username, password);
+
+            if (result.success) {
+                if (result.user.role === 'admin') {
+                    window.location.href = 'pages/admin/dashboard.html';
+                } else {
+                    window.location.href = 'pages/pos/pos.html';
+                }
+            } else {
+                loginErrorMessage.classList.remove('hidden');
+                loginErrorMessage.querySelector('span').textContent = result.message;
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userData = {
+                fullName: e.target.fullName.value,
+                username: e.target.username.value,
+                password: e.target.password.value,
+                role: e.target.role.value
+            };
+
+            const result = await auth.register(userData);
+
+            if (result.success) {
+                alert('Registration successful! Please login.');
+                showLogin.click();
+            } else {
+                registerErrorMessage.classList.remove('hidden');
+                registerErrorMessage.querySelector('span').textContent = result.message;
+            }
+        });
+    </script>
+</body>
+
+</html>

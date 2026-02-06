@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Al-Baraka Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/custom.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        body.auth-checked {
+            opacity: 1;
+        }
+    </style>
+    <script>
+        (function () {
+            const user = localStorage.getItem('restaurant_current_user');
+            if (!user) {
+                window.location.href = '../../index.html';
+                return;
+            }
+            const userData = JSON.parse(user);
+            if (userData.role !== 'admin') {
+                window.location.href = '../../index.html';
+                return;
+            }
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex">
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar w-64 bg-white border-r border-slate-200 lg:flex flex-col fixed h-full transition-all">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <span id="restaurantNameLabel" class="font-bold text-xl text-slate-800">Al-Baraka</span>
+            </div>
+            <button id="closeSidebar" class="lg:hidden text-slate-400">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl">
+                <i class="fas fa-th-large"></i><span>Dashboard</span>
+            </a>
+            <a href="users.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl">
+                <i class="fas fa-users"></i><span>Users</span>
+            </a>
+            <a href="menu.html" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl">
+                <i class="fas fa-utensils"></i><span>Menu</span>
+            </a>
+            <a href="reports.html"
+                class="flex items-center gap-3 px-4 py-3 bg-amber-50 text-amber-600 rounded-xl font-medium">
+                <i class="fas fa-chart-line"></i><span>Reports</span>
+            </a>
+            <a href="settings.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl">
+                <i class="fas fa-cog"></i><span>Settings</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-100">
+            <button id="logoutBtn"
+                class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 lg:ml-64 p-6 lg:p-10">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+            <div class="flex items-center gap-4">
+                <button id="openSidebar"
+                    class="lg:hidden w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-800">Reports & Analytics</h1>
+                    <p class="text-xs md:text-sm text-slate-500">Business performance metrics</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <input type="date" id="reportDate"
+                    class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none">
+                <button id="exportBtn"
+                    class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 flex items-center gap-2">
+                    <i class="fas fa-file-export"></i>
+                    <span>Export Report</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Analytics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <p class="text-slate-400 text-sm mb-1 font-medium italic">Total Revenue</p>
+                <h3 id="totalRevenue" class="text-3xl font-bold text-slate-800">$0.00</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <p class="text-slate-400 text-sm mb-1 font-medium italic">Average Order Value</p>
+                <h3 id="avgOrder" class="text-3xl font-bold text-slate-800">$0.00</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <p class="text-slate-400 text-sm mb-1 font-medium italic">Total Transactions</p>
+                <h3 id="totalTransactions" class="text-3xl font-bold text-slate-800">0</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            <!-- Chart 1: Sales Trends -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-6">Sales Trend (Last 7 Days)</h3>
+                <canvas id="salesChart" height="200"></canvas>
+            </div>
+            <!-- Chart 2: Top Selling Categories -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-6">Sales by Category</h3>
+                <canvas id="categoryChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Order History -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h2 class="text-xl font-bold text-slate-800">Order History</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50/50 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4">Operator</th>
+                            <th class="px-6 py-4">Method</th>
+                            <th class="px-6 py-4">Type</th>
+                            <th class="px-6 py-4">Items</th>
+                            <th class="px-6 py-4 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { storage, keys } from '../../js/storage.js';
+        import { formatCurrency, formatDate } from '../../js/utils.js';
+        import { auth } from '../../js/auth.js';
+        import { checkAuth } from '../../middleware/auth-guard.js';
+
+        // Protected Page
+        checkAuth('admin');
+
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const totalRevenue = document.getElementById('totalRevenue');
+        const avgOrder = document.getElementById('avgOrder');
+        const totalTransactions = document.getElementById('totalTransactions');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        const settings = storage.get(keys.SETTINGS) || { restaurantName: 'Al-Baraka Restaurant' };
+
+        // Sidebar Toggle
+        const sidebar = document.querySelector('.admin-sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('openSidebar');
+        const closeBtn = document.getElementById('closeSidebar');
+
+        const toggleSidebar = () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
+
+        openBtn.addEventListener('click', toggleSidebar);
+        closeBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        document.getElementById('restaurantNameLabel').textContent = settings.restaurantName;
+
+        logoutBtn.addEventListener('click', () => auth.logout());
+
+        exportBtn.addEventListener('click', () => {
+            const orders = storage.get(keys.ORDERS) || [];
+            if (orders.length === 0) {
+                alert('No orders to export');
+                return;
+            }
+
+            const headers = ['Order ID', 'Date', 'User', 'Payment Method', 'Order Type', 'Total'];
+            const rows = orders.map(o => [
+                o.id,
+                new Date(o.date).toLocaleString(),
+                o.user,
+                o.paymentMethod,
+                o.orderType,
+                o.total
+            ]);
+
+            let csvContent = "data:text/csv;charset=utf-8,"
+                + headers.join(",") + "\n"
+                + rows.map(e => e.join(",")).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Al_Baraka_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        const loadReports = () => {
+            const orders = storage.get(keys.ORDERS) || [];
+
+            // Stats
+            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+            totalRevenue.textContent = formatCurrency(revenue);
+            totalTransactions.textContent = orders.length;
+            avgOrder.textContent = orders.length > 0 ? formatCurrency(revenue / orders.length) : '$0.00';
+
+            // Table
+            ordersTableBody.innerHTML = orders.slice().reverse().map(o => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="px-6 py-4 font-mono font-medium text-slate-800">#${o.id.substr(0, 8)}</td>
+                    <td class="px-6 py-4 text-slate-500">${formatDate(o.date)}</td>
+                    <td class="px-6 py-4 text-slate-500">${o.user}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase">${o.paymentMethod}</span>
+                    </td>
+                    <td class="px-6 py-4 text-slate-500">${o.orderType}</td>
+                    <td class="px-6 py-4 text-slate-500">${o.items.length} items</td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-800">${formatCurrency(o.total)}</td>
+                </tr>
+            `).join('');
+
+            renderCharts(orders);
+        };
+
+        const renderCharts = (orders) => {
+            // Category Data
+            const catData = {};
+            orders.forEach(o => {
+                o.items.forEach(i => {
+                    catData[i.category] = (catData[i.category] || 0) + (i.price * i.quantity);
+                });
+            });
+
+            const categoryChartCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(catData).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                    datasets: [{
+                        data: Object.values(catData),
+                        backgroundColor: ['#f59e0b', '#6366f1', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }
+                }
+            });
+
+            // Sales Trend Data (Last 7 days)
+            const days = [];
+            const sales = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString();
+                days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+
+                const dayTotal = orders
+                    .filter(o => new Date(o.date).toLocaleDateString() === dateStr)
+                    .reduce((sum, o) => sum + o.total, 0);
+                sales.push(dayTotal);
+            }
+
+            const salesChartCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesChartCtx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Gross Sales',
+                        data: sales,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        };
+
+        // Initialize
+        try {
+            loadReports();
+        } catch (error) {
+            console.error('Initial load failed:', error);
+        }
+        document.body.classList.add('auth-checked');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Sales - Al-Baraka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/custom.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+    <header
+        class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
+        <div class="flex items-center gap-4">
+            <a href="../pos/pos.html"
+                class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:bg-amber-500 hover:text-white transition-all">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-xl font-bold text-slate-800">My Daily Sales</h1>
+        </div>
+
+        <button id="logoutBtn" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-all">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 lg:p-10">
+        <!-- Summary Card -->
+        <div class="bg-amber-500 rounded-3xl p-8 text-white shadow-xl shadow-amber-200 mb-10 overflow-hidden relative">
+            <div class="relative z-10">
+                <p class="text-amber-100 text-sm font-medium mb-1 uppercase tracking-wider">Total Sales Today</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 id="dailyTotal" class="text-5xl font-bold">$0.00</h2>
+                    <span class="text-amber-100 font-medium">USD</span>
+                </div>
+                <div class="mt-6 flex gap-4">
+                    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm">
+                        <span id="orderCount">0</span> Orders
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm">
+                        <span id="operatorName">User</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- History -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-800">Order History (Shift)</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50/50 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <th class="px-6 py-4">Order ID</th>
+                            <th class="px-6 py-4">Time</th>
+                            <th class="px-6 py-4">Method</th>
+                            <th class="px-6 py-4 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyOrdersBody" class="divide-y divide-slate-100 text-sm italic">
+                        <!-- Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { storage, keys } from '../../js/storage.js';
+        import { auth } from '../../js/auth.js';
+        import { formatCurrency, formatDate } from '../../js/utils.js';
+
+        const user = auth.getCurrentUser();
+        if (!user) window.location.href = '../../index.html';
+
+        document.getElementById('operatorName').textContent = user.fullName;
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
+
+        const loadDailySales = () => {
+            const orders = storage.get(keys.ORDERS) || [];
+            const today = new Date().toLocaleDateString();
+
+            const myOrders = orders.filter(o =>
+                new Date(o.date).toLocaleDateString() === today &&
+                o.user === user.fullName
+            );
+
+            const total = myOrders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('dailyTotal').textContent = formatCurrency(total);
+            document.getElementById('orderCount').textContent = myOrders.length;
+
+            const body = document.getElementById('dailyOrdersBody');
+            body.innerHTML = myOrders.slice().reverse().map(o => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 font-medium text-slate-800">#${o.id.substr(0, 8)}</td>
+                    <td class="px-6 py-4 text-slate-500">${new Date(o.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold uppercase">${o.paymentMethod}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-700">${formatCurrency(o.total)}</td>
+                </tr>
+            `).join('');
+
+            if (myOrders.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">No orders found for today yet.</td></tr>';
+            }
+        };
+
+        loadDailySales();
+    </script>
+</body>
+
+</html>

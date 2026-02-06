@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - Al-Baraka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/custom.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            .receipt-container {
+                width: 80mm;
+                margin: 0;
+                box-shadow: none;
+                border: none;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="receipt-container bg-white w-full max-w-sm p-8 shadow-2xl rounded-3xl border border-slate-100 mb-6">
+        <!-- Logo/Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl text-white mb-4">
+                <i class="fas fa-utensils text-2xl"></i>
+            </div>
+            <h1 id="restaurantNameTag" class="text-2xl font-bold text-slate-800">Al-Baraka</h1>
+            <p class="text-slate-500 text-sm">Restaurant & Cafeteria</p>
+            <p id="restaurantAddressTag" class="text-xs text-slate-400 mt-1">Hargeisa, Goljano</p>
+        </div>
+
+        <div class="border-y border-dashed border-slate-200 py-4 mb-6 space-y-2">
+            <div class="flex justify-between text-xs">
+                <span class="text-slate-400">Order ID:</span>
+                <span id="receiptId" class="font-bold text-slate-700">#00000000</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-slate-400">Date:</span>
+                <span id="receiptDate" class="text-slate-700">2026-01-27 20:30</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-slate-400">Order Type:</span>
+                <span id="receiptType" class="text-slate-700">Dine In</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-slate-400">Served By:</span>
+                <span id="receiptUser" class="text-slate-700">Cashier</span>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="mb-8">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-slate-400 border-b border-slate-100">
+                        <th class="text-left py-2 font-medium">Item</th>
+                        <th class="text-center py-2 font-medium">Qty</th>
+                        <th class="text-right py-2 font-medium">Price</th>
+                    </tr>
+                </thead>
+                <tbody id="receiptItems" class="divide-y divide-slate-100">
+                    <!-- Items here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals -->
+        <div class="space-y-2 mb-8">
+            <div class="flex justify-between text-slate-500">
+                <span>Subtotal</span>
+                <span id="receiptSubtotal">$0.00</span>
+            </div>
+            <div class="flex justify-between text-slate-500">
+                <span>Tax</span>
+                <span id="receiptTax">$0.50</span>
+            </div>
+            <div class="flex justify-between text-xl font-bold text-slate-800 pt-3 border-t border-slate-200">
+                <span>Total</span>
+                <span id="receiptTotal" class="text-amber-500">$0.00</span>
+            </div>
+        </div>
+
+        <div class="text-center border-t border-dashed border-slate-200 pt-6">
+            <p class="text-sm font-bold text-slate-600 mb-1">Thank You!</p>
+            <p class="text-xs text-slate-400">Please visit again</p>
+            <div class="mt-4 flex justify-center">
+                <img id="barcode" src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example"
+                    class="w-20 h-20 opacity-50">
+            </div>
+        </div>
+    </div>
+
+    <div class="no-print flex gap-4">
+        <button id="backToPos"
+            class="px-8 py-3 bg-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-300 transition-all flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to POS</span>
+        </button>
+        <button id="printBtn"
+            class="px-10 py-3 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 shadow-lg shadow-amber-200 transition-all flex items-center gap-2">
+            <i class="fas fa-print"></i>
+            <span>Print Receipt</span>
+        </button>
+    </div>
+
+    <script type="module">
+        import { formatCurrency, formatDate } from '../../js/utils.js';
+        import { storage, keys } from '../../js/storage.js';
+        import { checkAuth } from '../../middleware/auth-guard.js';
+
+        // Protected Page
+        checkAuth();
+
+        const order = JSON.parse(sessionStorage.getItem('lastOrder'));
+        const settings = storage.get(keys.SETTINGS) || {
+            restaurantName: 'Al-Baraka Restaurant',
+            address: '123 Arab Street, City Center'
+        };
+
+        if (!order) {
+            window.location.href = 'pos.html';
+        }
+
+        // Fill Header from Settings
+        document.getElementById('restaurantNameTag').textContent = settings.restaurantName;
+        document.getElementById('restaurantAddressTag').textContent = settings.address;
+
+        // Fill Data
+        document.getElementById('receiptId').textContent = `#${order.id.substr(0, 8)}`;
+        document.getElementById('receiptDate').textContent = formatDate(order.date);
+        document.getElementById('receiptType').textContent = order.orderType;
+        document.getElementById('receiptUser').textContent = order.user;
+        document.getElementById('receiptSubtotal').textContent = formatCurrency(order.total - 0.50);
+        document.getElementById('receiptTax').textContent = formatCurrency(0.50);
+        document.getElementById('receiptTotal').textContent = formatCurrency(order.total);
+
+        const itemsBody = document.getElementById('receiptItems');
+        itemsBody.innerHTML = order.items.map(item => `
+            <tr>
+                <td class="py-3">
+                    <div class="font-bold text-slate-700">${item.name}</div>
+                </td>
+                <td class="text-center text-slate-600">${item.quantity}</td>
+                <td class="text-right text-slate-700 font-medium">${formatCurrency(item.price * item.quantity)}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('barcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${order.id}`;
+
+        // Buttons
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+        document.getElementById('backToPos').addEventListener('click', () => {
+            sessionStorage.removeItem('lastOrder');
+            window.location.href = 'pos.html';
+        });
+    </script>
+</body>
+
+</html>

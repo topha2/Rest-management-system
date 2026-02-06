@@ -1,0 +1,4 @@
+/* Tailwind CSS placeholder. For development, we use the CDN. In production, this would be the compiled CSS. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
